@@ -10,7 +10,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.Buffer;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import org.jnetpcap.*;
 import org.jnetpcap.PcapIf;
@@ -41,7 +45,6 @@ public class scannerfinder {
                 filename = filename + " " + args[i];
             }
         }
-        System.out.println(filename);
         
 	StringBuilder errbuf = new StringBuilder(); // For any error msgs
         int snaplen = 64 * 1024; // Capture all packets, no trucation
@@ -53,6 +56,10 @@ public class scannerfinder {
 				+ errbuf.toString());
 		return;
 	}
+        //keeps track of the number of
+        //source and dest. IPs sent and received in packets analyzed
+        Map<String, Object> sources = new HashMap<>();
+        Map<String, Object> destinations = new HashMap<>();
         
 	PcapPacketHandler<String> jpacketHandler = new PcapPacketHandler<String>() {
             public void nextPacket(PcapPacket packet, String user) {
@@ -70,14 +77,45 @@ public class scannerfinder {
                     dIP = packet.getHeader(ip).destination();
                     destIP = org.jnetpcap.packet.format.FormatUtils.ip(dIP);
 
-                    System.out.println("*" + sourceIP + " *" + destIP);
-                    System.out.println("Source IP " + sourceIP);
-                    System.out.println("Destination IP " + destIP);
+                    //System.out.println("*" + sourceIP + " *" + destIP);
+                    //System.out.println("Source IP " + sourceIP);
+                    //System.out.println("Destination IP " + destIP);
+                
+                    
+                    
+                    if(sources.get(sourceIP) == null){
+                        sources.put(sourceIP,1);
+                    }else{
+                        int temp = (int) sources.get(sourceIP);
+                        temp += 1;
+                        sources.put(sourceIP,temp);
+                    }
+                    
+                    if(destinations.get(destIP) == null){
+                        destinations.put(destIP,1);
+                    }else{
+                        int temp = (int) destinations.get(destIP);
+                        temp += 1;
+                        destinations.put(destIP,temp);
+                    }
                 }
             }
 	};
         
         pcap.loop(1000000, jpacketHandler, "jNetPcap");
         pcap.close();
+        //System.out.println(sources);
+        //System.out.println(destinations);
+        for(Map.Entry<String,Object> entry : sources.entrySet()){
+            String key = entry.getKey();
+            int val = (int) entry.getValue();
+            if(destinations.get(key) != null){
+                int temp = (int) destinations.get(key);
+                //System.out.println(val + "vs." + temp);
+                if(val >= 3*temp){
+                    System.out.println(key);
+                }
+            }
+        }
     }
 }
