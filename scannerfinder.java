@@ -102,7 +102,12 @@ public class scannerfinder {
             }
 	};
         
-        pcap.loop(1000000, jpacketHandler, "jNetPcap");
+        int numloops = 1000000;
+        pcap.loop(numloops, jpacketHandler, "jNetPcap");
+        //1,000,000 loops takes 5-6 minutes
+        //2,000,000 loops takes 12 minutes
+        //10,000,000 loops takes 33 minutes
+        //
         pcap.close();
         //System.out.println(sources);
         //System.out.println(destinations);
