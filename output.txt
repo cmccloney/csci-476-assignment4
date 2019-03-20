@@ -1,0 +1,13 @@
+2x (these addresses sent 2x as many or more packets than they received):
+
+128.3.23.162
+128.3.23.158
+128.3.23.37
+128.55.99.150
+128.3.23.5
+128.55.248.85
+
+2.5/3x (these addresses sent 2.5x and 3x as many or more packets than they received, same values for both runs):
+
+128.3.23.5
+128.55.248.85
