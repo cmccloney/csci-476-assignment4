@@ -71,19 +71,13 @@ public class scannerfinder {
                 Ip4 ip = new Ip4();
                 Tcp tcp = new Tcp();
                 
-                if(packet.hasHeader(ip) && packet.hasHeader(tcp)){
+                if(packet.hasHeader(ip) && packet.hasHeader(tcp)){ //if we've found a relevant packet
                     sIP = packet.getHeader(ip).source();
                     sourceIP = org.jnetpcap.packet.format.FormatUtils.ip(sIP);
                     dIP = packet.getHeader(ip).destination();
                     destIP = org.jnetpcap.packet.format.FormatUtils.ip(dIP);
-
-                    //System.out.println("*" + sourceIP + " *" + destIP);
-                    //System.out.println("Source IP " + sourceIP);
-                    //System.out.println("Destination IP " + destIP);
-                
-                    
-                    
-                    if(sources.get(sourceIP) == null){
+                    //get the source and destination IP addresses
+                    if(sources.get(sourceIP) == null){ //store in Map data structure
                         sources.put(sourceIP,1);
                     }else{
                         int temp = (int) sources.get(sourceIP);
@@ -91,7 +85,7 @@ public class scannerfinder {
                         sources.put(sourceIP,temp);
                     }
                     
-                    if(destinations.get(destIP) == null){
+                    if(destinations.get(destIP) == null){ //store dest in Map data structure
                         destinations.put(destIP,1);
                     }else{
                         int temp = (int) destinations.get(destIP);
@@ -102,23 +96,16 @@ public class scannerfinder {
             }
 	};
         
-        int numloops = 1000000;
+        int numloops = 100000000; //make sure we read the entire file
         pcap.loop(numloops, jpacketHandler, "jNetPcap");
-        //1,000,000 loops takes 5-6 minutes
-        //2,000,000 loops takes 12 minutes
-        //10,000,000 loops takes 33 minutes
-        //
-        pcap.close();
-        //System.out.println(sources);
-        //System.out.println(destinations);
-        for(Map.Entry<String,Object> entry : sources.entrySet()){
+        pcap.close(); //close the .pcap file
+        for(Map.Entry<String,Object> entry : sources.entrySet()){ //for every address gathered
             String key = entry.getKey();
-            int val = (int) entry.getValue();
+            int val = (int) entry.getValue(); //get the # packets sent
             if(destinations.get(key) != null){
-                int temp = (int) destinations.get(key);
-                //System.out.println(val + "vs." + temp);
-                if(val >= 3*temp){
-                    System.out.println(key);
+                int temp = (int) destinations.get(key); //get the # packets received
+                if(val >= 3*temp){ //if 3x as many packets were sent then received,
+                    System.out.println(key); //print out the IP address
                 }
             }
         }
